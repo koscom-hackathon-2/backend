@@ -3,15 +3,14 @@ import os
 import re
 from io import BytesIO
 
-import openai
 import requests
 from decouple import config
+from openai import OpenAI
 from PIL import Image
 from termcolor import colored
 
 # Constants
 assert os.path.isfile(".env"), ".env file not found!"
-openai.api_key = config("OPENAI_API_KEY")
 
 CODE_INTERPRETER_SYSTEM_PROMPT = "You are code-interpreter GPT that can execute code by generation of code in ```python\n(here)```"
 
@@ -34,9 +33,10 @@ class GPTCodeGenerator:
     def __init__(self, model="gpt-4"):
         self.model = model
         self.dialog = [{"role": "system", "content": CODE_INTERPRETER_SYSTEM_PROMPT}]
+        self.client = OpenAI(api_key=config("OPENAI_API_KEY"))
 
     def chat_completion(self):
-        dialog_stream = openai.ChatCompletion.create(
+        dialog_stream = self.client.chat.completions.create(
             model=self.model,
             messages=self.dialog,
             temperature=0.1,
@@ -48,7 +48,7 @@ class GPTCodeGenerator:
         stop_condition_met = [False, False]
 
         for chunk in dialog_stream:
-            content = chunk["choices"][0].get("delta", {}).get("content")
+            content = chunk.choices[0].delta.content
             if content:
                 buffer += content
                 yield from content
@@ -67,7 +67,7 @@ class GPTCodeGenerator:
     @staticmethod
     def execute_code(code: str) -> str:
         # code_exec API의 endpoint
-        url = "http://127.0.0.1:8080/execute"
+        url = "http://127.0.0.1:8081/execute"
         response = requests.post(url, json={"code": code})
         result = response.json().get("result", "")
         return distinguish_and_handle(result)
