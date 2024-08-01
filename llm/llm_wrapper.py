@@ -9,7 +9,6 @@ from openai import OpenAI
 from PIL import Image
 from termcolor import colored
 
-# Constants
 assert os.path.isfile(".env"), ".env file not found!"
 
 CODE_INTERPRETER_SYSTEM_PROMPT = "You are code-interpreter GPT that can execute code by generation of code in ```python\n(here)```"
