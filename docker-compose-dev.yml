@@ -26,6 +26,8 @@ services:
       - '8080:8080'
     networks:
       - mynet
+    environment:
+      - EXECUTOR_URL=http://code_exec:8081/execute # 도커 환경에서의 URL
 
 networks:
   mynet:
