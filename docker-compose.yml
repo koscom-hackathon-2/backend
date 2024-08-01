@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  code_exec:
+    build:
+      context: ./code_exec
+    ports:
+      - '8081:8081'
+    volumes:
+      - ./code_exec:/app
+    networks:
+      - mynet
+
+  # fetch:
+  #   build:
+  #     context: ./fetch
+  #   ports:
+  #     - '8001:8001'
+  #   volumes:
+  #     - ./fetch:/app
+  #   networks:
+  #     - mynet
+
+  llm:
+    build:
+      context: ./llm
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./llm:/app
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge

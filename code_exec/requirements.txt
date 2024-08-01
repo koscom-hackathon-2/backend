@@ -2,3 +2,4 @@ codeboxapi==0.1.21
 fastapi==0.111.1
 jupyter-kernel-gateway==3.0.1
 jupyter==1.0.0
+gunicorn==22.0.0
