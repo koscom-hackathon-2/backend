@@ -4,10 +4,12 @@ FROM python:3.10-slim
 # 작업 디렉토리 설정
 WORKDIR /app
 
+RUN mkdir /app/llm
+
 # 필요한 파일 복사
-COPY requirements.txt /app/
-COPY llm_server.py /app/
-COPY llm_wrapper.py /app/
+COPY . /app/llm
+
+WORKDIR /app/llm
 
 # 필요한 패키지 설치
 RUN pip install --no-cache-dir -r requirements.txt

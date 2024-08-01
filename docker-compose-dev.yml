@@ -4,10 +4,9 @@ services:
   code_exec:
     build:
       context: ./code_exec
+    image: soul4927/s-talk_code_exec:latest # 빌드 이미지 이름 , pull할때도 사용
     ports:
       - '8081:8081'
-    volumes:
-      - ./code_exec:/app
     networks:
       - mynet
 
@@ -16,18 +15,15 @@ services:
   #     context: ./fetch
   #   ports:
   #     - '8001:8001'
-  #   volumes:
-  #     - ./fetch:/app
   #   networks:
   #     - mynet
 
   llm:
     build:
       context: ./llm
+    image: soul4927/s-talk_llm:latest
     ports:
       - '8080:8080'
-    volumes:
-      - ./llm:/app
     networks:
       - mynet
 

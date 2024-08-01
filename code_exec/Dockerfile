@@ -4,9 +4,12 @@ FROM python:3.10-slim
 # 작업 디렉토리 설정
 WORKDIR /app
 
+RUN mkdir /app/code_exec
+
 # 필요한 파일 복사
-COPY requirements.txt /app/
-COPY code_exec_server.py /app/
+COPY . /app/code_exec
+
+WORKDIR /app/code_exec
 
 # 필요한 패키지 설치
 RUN pip install --no-cache-dir -r requirements.txt
