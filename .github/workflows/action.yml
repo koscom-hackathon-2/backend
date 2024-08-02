@@ -27,8 +27,8 @@ jobs:
           # docker push soul4927/s-talk_llm
 
           ## .env 파일 생성
-          mkdir ~/code_exec
-          mkdir ~/llm
+          sudo mkdir ~/code_exec
+          sudo mkdir ~/llm
 
           sudo touch ~/code_exec/.env
           echo "${{ secrets.ENV_CODE_EXEC }}" > ~/code_exec/.env
