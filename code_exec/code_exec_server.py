@@ -1,7 +1,12 @@
+import os
 import time
 
 from codeboxapi import CodeBox
+from decouple import config
 from fastapi import FastAPI, HTTPException, Request
+
+assert os.path.isfile(".env"), ".env file not found!"
+os.environ["CODEBOX_API_KEY"] = config("CODEBOX_API_KEY")
 
 app = FastAPI()
 

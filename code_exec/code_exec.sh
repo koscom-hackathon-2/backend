@@ -5,4 +5,4 @@
 
 pip install -r requirements.txt
 pkill -9 gunicorn
-gunicorn -k uvicorn.workers.UvicornWorker --access-logfile ./gunicorn-access.log code_exec_server:app --bind 0.0.0.0:8080 --workers 2 --daemon --timeout 300
+gunicorn -k uvicorn.workers.UvicornWorker --access-logfile ./gunicorn-access.log code_exec_server:app --bind 0.0.0.0:8081 --workers 2 --daemon --timeout 300

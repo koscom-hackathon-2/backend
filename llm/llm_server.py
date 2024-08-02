@@ -2,8 +2,7 @@ import json
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
-from llm_wrapper import GPTCodeGenerator
+from llm_wrapper import ChatResponse, GPTCodeGenerator
 
 app = FastAPI()
 
@@ -16,32 +15,37 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
+
 @app.options("/chat-completion")
 async def options():
     print("OPTIONS request received")
     return Response(content="OK", media_type="text/plain")
 
 @app.post("/chat-completion")
-async def chat_completion(request: Request):
+async def chat_completion(request: Request) -> ChatResponse:
     data = await request.json()
     user_message = data.get("user_message", "")
 
-    async def generate():
-        gpt_interpreter = GPTCodeGenerator()
-        for char in gpt_interpreter.chat(user_message):
-            print(char, end="")
-            response = {
-                "choices": [
-                    {
-                        "index": 0,
-                        "delta": {"role": "assistant", "content": char},
-                        "finish_reason": None,
-                    }
-                ],
-            }
-            yield f"data: {json.dumps(response)}\n\n"  # 서버 전송 이벤트 형식
+    gpt_interpreter = GPTCodeGenerator()
+    return gpt_interpreter.chat(user_message)
 
-    return StreamingResponse(generate(), media_type="text/event-stream")
+    # async def generate():
+    #     gpt_interpreter = GPTCodeGenerator()
+
+    #     for char in gpt_interpreter.chat(user_message):
+    #         print(char, end="")
+    #         response = {
+    #             "choices": [
+    #                 {
+    #                     "index": 0,
+    #                     "delta": {"role": "assistant", "content": char},
+    #                     "finish_reason": None,
+    #                 }
+    #             ],
+    #         }
+    #         yield f"data: {json.dumps(response)}\n\n"  # 서버 전송 이벤트 형식
+
+    # return StreamingResponse(generate(), media_type="text/event-stream")
 
 if __name__ == "__main__":
     import uvicorn
