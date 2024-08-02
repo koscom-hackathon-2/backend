@@ -1,0 +1,48 @@
+name: CICD
+
+on:
+  push:
+    branches: ['main', 'infra']
+  pull_request:
+    branches: ['main']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: docker build and push to dockerhub
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          # docker build --platform amd64 -t soul4927/s-talk_code_exec ./code_exec
+          # docker build --platform amd64 -t soul4927/s-talk_llm ./llm
+
+          # docker push soul4927/s-talk_code_exec
+          # docker push soul4927/s-talk_llm
+
+          docker compose -f docker-compose-prod.yml build
+          docker compose -f docker-compose-prod.yml push
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+
+            cd ~
+
+            ## docker-compose 실행
+            sudo chmod 666 /var/run/docker.sock
+            sudo docker rm -f $(docker ps -qa)
+
+            docker compose -f docker-compose-prod.yml pull
+            docker compose -f docker-compose-prod.yml up -d
+            # docker image prune -f
