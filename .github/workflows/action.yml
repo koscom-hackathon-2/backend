@@ -26,6 +26,16 @@ jobs:
           # docker push soul4927/s-talk_code_exec
           # docker push soul4927/s-talk_llm
 
+          ## .env 파일 생성
+          mkdir ~/code_exec
+          mkdir ~/llm
+
+          sudo touch ~/code_exec/.env
+          echo "${{ secrets.ENV_CODE_EXEC }}" > ~/code_exec/.env
+
+          sudo touch ~/llm/.env
+          echo "${{ secrets.ENV_LLM }}" > ~/llm/.env
+
           docker compose -f docker-compose-prod.yml build
           docker compose -f docker-compose-prod.yml push
 
@@ -43,15 +53,7 @@ jobs:
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
 
-            ## .env 파일 생성
-            mkdir ~/code_exec
-            mkdir ~/llm
 
-            sudo touch ~/code_exec/.env
-            echo "${{ secrets.ENV_CODE_EXEC }}" > ~/code_exec/.env
-
-            sudo touch ~/llm/.env
-            echo "${{ secrets.ENV_LLM }}" > ~/llm/.env
 
             docker compose -f docker-compose-prod.yml pull
             docker compose -f docker-compose-prod.yml up -d
