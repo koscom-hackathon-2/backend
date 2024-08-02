@@ -10,6 +10,8 @@ services:
       - '8081:8081'
     networks:
       - mynet
+    env_file:
+      - ./code_exec/.env
 
   # fetch:
   #   build:
@@ -32,6 +34,8 @@ services:
       - mynet
     environment:
       - EXECUTOR_URL=http://code_exec:8081/execute # 도커 환경에서의 URL
+    env_file:
+      - ./llm/.env
 
 networks:
   mynet:
