@@ -1,8 +1,9 @@
 import json
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from llm_wrapper import ChatResponse, GPTCodeGenerator
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -15,16 +16,18 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
+class ChatCompletionRequest(BaseModel):
+    user_message: str
 
 @app.options("/chat-completion")
 async def options():
     print("OPTIONS request received")
     return Response(content="OK", media_type="text/plain")
 
+
 @app.post("/chat-completion")
-async def chat_completion(request: Request) -> ChatResponse:
-    data = await request.json()
-    user_message = data.get("user_message", "")
+async def chat_completion(request: ChatCompletionRequest) -> ChatResponse:
+    user_message = request.user_message
 
     gpt_interpreter = GPTCodeGenerator()
     return gpt_interpreter.chat(user_message)
@@ -47,6 +50,8 @@ async def chat_completion(request: Request) -> ChatResponse:
 
     # return StreamingResponse(generate(), media_type="text/event-stream")
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="debug")

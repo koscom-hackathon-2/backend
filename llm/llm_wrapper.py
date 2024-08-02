@@ -23,8 +23,9 @@ assert os.path.isfile(".env"), ".env file not found!"
 
 CODE_INTERPRETER_SYSTEM_PROMPT = "You are code-interpreter GPT that can execute code by generation of code in ```python\n(here)```. You can access real-time stock data through y-finance library."
 
+
 def distinguish_and_handle(input_str):
-    if hasattr(input_str, 'content'):
+    if hasattr(input_str, "content"):
         input_str = input_str.content
 
     base64_pattern = r"^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
@@ -38,6 +39,7 @@ def distinguish_and_handle(input_str):
         except Exception:
             return input_str, None
     return input_str, None
+
 
 class GPTCodeGenerator:
     def __init__(self, model="gpt-4"):
@@ -61,26 +63,20 @@ class GPTCodeGenerator:
             content = chunk.choices[0].delta.content
             if content:
                 buffer += content
-                # yield from content
 
                 if "```python" in buffer:
                     stop_condition_met[0] = True
                 elif stop_condition_met[0] and "```" in buffer:
-                    # stop_condition_met[1] = True
                     break
-                
-                # TODO
-                # if len(buffer) > 100:
-                #     buffer = buffer[-100:]
-
-                # if stop_condition_met[1]:
-                #     break
         return buffer
 
     @staticmethod
     def execute_code(code: str) -> str:
         # code_exec API의 endpoint
-        url = "http://127.0.0.1:8081/execute"
+        url = os.getenv("EXECUTOR_URL", "http://localhost:8081/execute")
+
+        print("===== url : ", url)
+
         response = requests.post(url, json={"code": code})
         result = response.json().get("result", "")
         return distinguish_and_handle(result)
@@ -97,11 +93,7 @@ class GPTCodeGenerator:
 
         for _ in range(max_try):
             generated_text = self.chat_completion()
-            print(generated_text) # TODO
-            # TODO
-            # for char in self.chat_completion():
-            #     generated_text += char
-            #     yield char
+            print(generated_text)
 
             if "<done>" in generated_text:
                 generated_text = generated_text.split("<done>")[0].strip()
@@ -111,8 +103,6 @@ class GPTCodeGenerator:
             if code_blocks := self.extract_code_blocks(generated_text):
                 code_block = code_blocks[0]
                 code_output, img_raw = self.execute_code(code_block)
-
-                # yield f"```Execution Result:\n{code_output}\n```" TODO
 
                 image_result = None
                 text_result = None
@@ -127,15 +117,16 @@ class GPTCodeGenerator:
                 response_content = f"{generated_text}\n```Execution Result:\n{code_output}\n```"
                 self.dialog.append({"role": "assistant", "content": response_content})
 
-                feedback_content = ("Keep going. If you think debugging, tell me where you got wrong and suggest better code. "
-                                    "Need conclusion to question only in text (Do not leave result part alone). "
-                                    "If no further generation is needed, just say <done>.")
+                feedback_content = (
+                    "Keep going. If you think debugging, tell me where you got wrong and suggest better code. "
+                    "Need conclusion to question only in text (Do not leave result part alone). "
+                    "If no further generation is needed, just say <done>."
+                )
                 self.dialog.append({"role": "user", "content": feedback_content})
             else:
                 self.dialog.append({"role": "assistant", "content": generated_text})
                 break
 
-        print(f"{text_result=}  {image_result}") # TODO
         code_exec_result = CodeExecResult(text= text_result, image=image_result)
         return ChatResponse(generated_code=code_block, code_exec_result=code_exec_result)
 

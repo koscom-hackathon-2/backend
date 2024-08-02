@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  code_exec:
+    platform: linux/amd64
+    build:
+      context: ./code_exec
+    image: soul4927/s-talk_code_exec:latest # 빌드 이미지 이름 , pull할때도 사용
+    ports:
+      - '8081:8081'
+    networks:
+      - mynet
+
+  # fetch:
+  #   build:
+  #     context: ./fetch
+  #   ports:
+  #     - '8001:8001'
+  #   volumes:
+  #     - ./fetch:/app
+  #   networks:
+  #     - mynet
+
+  llm:
+    platform: linux/amd64
+    build:
+      context: ./llm
+    image: soul4927/s-talk_llm:latest
+    ports:
+      - '8080:8080'
+    networks:
+      - mynet
+    environment:
+      - EXECUTOR_URL=http://code_exec:8081/execute # 도커 환경에서의 URL
+
+networks:
+  mynet:
+    driver: bridge
