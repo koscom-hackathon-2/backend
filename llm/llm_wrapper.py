@@ -24,7 +24,7 @@ assert os.path.isfile(".env"), ".env file not found!"
 
 CODE_INTERPRETER_SYSTEM_PROMPT = "You are code-interpreter GPT that can execute code by generation of code in ```python\n(here)```. You can access real-time stock data through y-finance library."
 
-IMAGE_DESCRIPTOR_SYSTEM_PROMPT= "You are image-descriptor GPT. "
+IMAGE_DESCRIPTOR_SYSTEM_PROMPT= "너는 그래프 이미지에서 확인할 수 있는 정보를 찾아내는 역할을 할거야. 그래프 이미지를 생성하기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘."
 
 def distinguish_and_handle(input_str):
     if hasattr(input_str, "content"):
@@ -77,7 +77,7 @@ class GPTCodeGenerator:
         query_content = [
             {
                 "type": "text",
-                "text": f"아래의 그래프 이미지를 그리기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘.\n\n{code_block}"
+                "text": code_block
             },
             {
                 "type": "image_url",
