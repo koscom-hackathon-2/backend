@@ -72,14 +72,30 @@ class GPTCodeGenerator:
                     break
         return buffer
     
-    def descript_image(self):
+    def descript_image(self, code_block: str, image_result: str):
+        query_content = [
+            {
+                "type": "text",
+                "text": f"아래의 그래프 이미지를 그리기 위한 파이썬 코드를 참고하여 그래프 이미지에 대해 설명해줘.\n\n{code_block}"
+            },
+            {
+                "type": "image_url",
+                "image_url":{
+                    "url": f"data:image/jpeg;base64,{image_result}"
+                }
+            }
+        ]
+        self.messages.append({
+            "role": "user",
+            "content": query_content
+        })
         response = self.client.chat.completions.create(
-            model=self.model,
+            model="gpt-4o",
             messages=self.messages,
             temperature=0.2,
         )
 
-        return response
+        return response.choices[0].message.content
 
     @staticmethod
     def execute_code(code: str) -> str:
@@ -119,9 +135,9 @@ class GPTCodeGenerator:
                 text_result = None
 
                 if img_raw:
-                    img_raw.save("temp.png") # code for test
                     image_result = code_output
                     code_output = "image" # TODO
+                    text_result = self.descript_image(code_block, image_result)
                 else:
                     text_result = code_output
 
@@ -138,6 +154,7 @@ class GPTCodeGenerator:
                 self.dialog.append({"role": "assistant", "content": generated_text})
                 break
 
+        print(f"{text_result=}")
         code_exec_result = CodeExecResult(text= text_result, image=image_result)
         return ChatResponse(generated_code=code_block, code_exec_result=code_exec_result)
 
