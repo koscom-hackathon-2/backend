@@ -32,24 +32,6 @@ async def chat_completion(request: ChatCompletionRequest) -> ChatResponse:
     gpt_interpreter = GPTCodeGenerator()
     return gpt_interpreter.chat(user_message)
 
-    # async def generate():
-    #     gpt_interpreter = GPTCodeGenerator()
-
-    #     for char in gpt_interpreter.chat(user_message):
-    #         print(char, end="")
-    #         response = {
-    #             "choices": [
-    #                 {
-    #                     "index": 0,
-    #                     "delta": {"role": "assistant", "content": char},
-    #                     "finish_reason": None,
-    #                 }
-    #             ],
-    #         }
-    #         yield f"data: {json.dumps(response)}\n\n"  # 서버 전송 이벤트 형식
-
-    # return StreamingResponse(generate(), media_type="text/event-stream")
-
 
 if __name__ == "__main__":
     import uvicorn

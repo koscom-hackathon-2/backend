@@ -1,15 +1,15 @@
+import asyncio
 import json
 import os
 
 import httpx
 import requests
+from BaseFetcher import BaseFetcher
 from decouple import config
-
-from .BaseFetcher import BaseFetcher
 
 assert os.path.isfile(".env"), ".env file not found!"
 
-class CheckFetcher(BaseFetcher):
+class LSFetcher(BaseFetcher):
     BASE_URL = "https://openapi.ls-sec.co.kr:8080"
 
     def __init__(self):
@@ -55,6 +55,46 @@ class CheckFetcher(BaseFetcher):
                 f"\tThe request failed with status code {request.status_code}.\n\tRespuest text: {request.text}"
             )
             return None
+        
+    async def get_stock_infos(self, shcode: str) -> dict:
+        headers = {
+            "content-type": "application/json; charset=utf-8",
+            "authorization": f"Bearer {self.api_key}",
+            "tr_cd": "t1102",
+            "tr_cont": "Y",
+        }
+        body = {"t1102InBlock": {"shcode": shcode}}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.BASE_URL}/stock/market-data", headers=headers, data=json.dumps(body)
+            )
+
+        stocks = response.json()["t1102OutBlock"]
+        return stocks
     
-    async def get_code_info(self):
-        pass
+    async def get_stock_hname(self, shcode:str) -> str:
+        stock_infos = await self.get_stock_infos(shcode=shcode)
+
+        return stock_infos["hname"]
+    
+    async def get_stock_price(self, shcode: str) -> int:
+        stock_infos = await self.get_stock_infos(shcode=shcode)
+
+        return stock_infos["price"]
+    
+    async def get_stock_change(self, shcode: str) -> str:
+        stock_infos = await self.get_stock_infos(shcode=shcode)
+
+        return stock_infos["change"]
+    
+
+if __name__ == "__main__":
+
+    async def main():
+        fetcher = LSFetcher()
+        response = await fetcher.get_stock_change("078020")
+
+        print(response)
+
+    asyncio.run(main())
