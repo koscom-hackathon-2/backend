@@ -75,24 +75,49 @@ class LSFetcher(BaseFetcher):
         return stocks
     
     async def get_today_stock_hname(self, shcode:str) -> str: # 한글명
-        stock_infos = await self.get_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["hname"]
     
     async def get_today_stock_price(self, shcode: str) -> int: # 현재가
-        stock_infos = await self.get_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["price"]
     
     async def get_today_tock_diff(self, shcode: str) -> int: # 등락율
-        stock_infos = await self.get_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["diff"]
     
     async def get_today_stock_volume(self, shcode: str) -> int: # 누적거래량
-        stock_infos = await self.get_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["volume"]
+    
+    async def get_today_stock_open(self, shcode: str) -> int: # 시가
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
+
+        return stock_infos["open"]
+    
+    async def get_today_stock_high(self, shcode: str) -> int: # 고가
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
+
+        return stock_infos["high"]
+    
+    async def get_today_stock_low(self, shcode: str) -> int: # 저가
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
+
+        return stock_infos["low"]
+    
+    async def get_today_stock_per(self, shcode: str) -> int: # PER
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
+
+        return stock_infos["per"]
+    
+    async def get_today_stock_total(self, shcode: str) -> int: # 시가 총액
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
+
+        return stock_infos["total"]
     
     async def get_stock_chart_info(self, shcode: str, ncnt: int, sdate: str = "", edate: str = ""): # 주식 차트
         headers = {
@@ -106,8 +131,8 @@ class LSFetcher(BaseFetcher):
             "ncnt": ncnt, # time unit
             "qrycnt": 0,
             "nday": "0",
-            "sdate": sdate, # example: "20240101"
-            "edate": edate, # example: "20241231"
+            "sdate": sdate, # "YYYYMMDD"
+            "edate": edate, # "YYYYMMDD"
             "cts_date": "",
             "cts_time": "",
             "comp_yn": "N",
@@ -133,8 +158,8 @@ class LSFetcher(BaseFetcher):
             "upcode": upcode,
             "gubun2": gubun2,
             "gubun3": gubun3,
-            "from_date": from_date, # example: "20240101"
-            "to_date": to_date, # example: "20241231"
+            "from_date": from_date, # "YYYYMMDD"
+            "to_date": to_date, # "YYYYMMDD"
         }}
 
         async with httpx.AsyncClient() as client:
@@ -176,7 +201,7 @@ if __name__ == "__main__":
 
     async def main():
         fetcher = LSFetcher()
-        # response = await fetcher.get_today_stock_infos(shcode="078020")
+        # response = await fetcher.get_today_stock_per(shcode="078020")
         # response = await fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
         response = await fetcher.get_institutional_investor_sale_trend(market="1", upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
 
