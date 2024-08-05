@@ -73,11 +73,27 @@ class LSFetcher(BaseFetcher):
         return stocks
     
     async def get_today_stock_hname(self, shcode:str) -> str: # 한글명
+        """Fetches the Korean name of a stock from today's stock market data.
+
+        Args:
+            shcode (str): The stock code of the stock whose Korean name you want to fetch.
+
+        Returns:
+            str: The Korean name of the specific stock fetched from today's stock market data.
+        """
         stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["hname"]
     
     async def get_today_stock_price(self, shcode: str) -> int: # 현재가
+        """Retrieves the current price of a given stock.
+
+        Args:
+            shcode (str): The stock code of the stock the price of which should be returned. 
+
+        Returns:
+            int: The current price of the provided stock.
+        """
         stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["price"]
