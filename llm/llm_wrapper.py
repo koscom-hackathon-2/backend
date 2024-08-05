@@ -23,6 +23,7 @@ assert os.path.isfile(".env"), ".env file not found!"
 
 CODE_INTERPRETER_SYSTEM_PROMPT = "You are code-interpreter GPT that can execute code by generation of code in ```python\n(here)```. You can access real-time stock data through y-finance library."
 
+IMAGE_DESCRIPTOR_SYSTEM_PROMPT= "You are image-descriptor GPT. "
 
 def distinguish_and_handle(input_str):
     if hasattr(input_str, "content"):
@@ -45,6 +46,7 @@ class GPTCodeGenerator:
     def __init__(self, model="gpt-4"):
         self.model = model
         self.dialog = [{"role": "system", "content": CODE_INTERPRETER_SYSTEM_PROMPT}]
+        self.messages=[{"role": "system", "content": IMAGE_DESCRIPTOR_SYSTEM_PROMPT}]
         self.client = OpenAI(api_key=config("OPENAI_API_KEY"))
 
     def chat_completion(self):
@@ -69,6 +71,15 @@ class GPTCodeGenerator:
                 elif stop_condition_met[0] and "```" in buffer:
                     break
         return buffer
+    
+    def descript_image(self):
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=self.messages,
+            temperature=0.2,
+        )
+
+        return response
 
     @staticmethod
     def execute_code(code: str) -> str:
@@ -132,5 +143,5 @@ class GPTCodeGenerator:
 
 if __name__ == "__main__":
     gpt_generator = GPTCodeGenerator()
-    for char in gpt_generator.chat("what is 555th fibonacci number?"):
+    for char in gpt_generator.chat("what is 10th fibonacci number?"):
         print(char, end="")
