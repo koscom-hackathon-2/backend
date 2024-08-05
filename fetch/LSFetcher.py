@@ -84,7 +84,7 @@ class LSFetcher(BaseFetcher):
 
         return stock_infos["price"]
     
-    async def get_today_tock_diff(self, shcode: str) -> int: # 등락율
+    async def get_today_stock_diff(self, shcode: str) -> int: # 등락율
         stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["diff"]
@@ -196,6 +196,39 @@ class LSFetcher(BaseFetcher):
     
     async def get_institutional_investor_sale_trend(self, market: str, upcode: str, gubun2: str, gubun3: str, from_date: str, to_date: str) -> List[Dict]:
         return await self.get_specific_investor_sale_trend(market, upcode, gubun2, gubun3, from_date, to_date, sv_code="sv_18", sa_code="sa_18")
+    
+    async def get_etf_composition(self, shcode: str, date: str, sgb: str):
+        headers = {
+            "content-type": "application/json; charset=utf-8",
+            "authorization": f"Bearer {self.api_key}",
+            "tr_cd": "t1904",
+            "tr_cont": "N",
+        }
+        body = {"t1904InBlock": {
+            "shcode": shcode,
+            "date": date,
+            "sgb": sgb,
+        }}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.BASE_URL}/stock/etf", headers=headers, data=json.dumps(body)
+            )
+
+        etf_comp_total = response.json()["t1904OutBlock1"]
+        etf_comp_summary = []
+
+        for etf_comp in etf_comp_total:
+            hname = etf_comp["hname"]
+            weight = etf_comp["weight"]
+            
+            etf_comp_summary.append({
+                "hname": hname,
+                "weight": weight,
+            })
+
+        return etf_comp_summary
+        
 
 if __name__ == "__main__":
 
@@ -203,7 +236,8 @@ if __name__ == "__main__":
         fetcher = LSFetcher()
         # response = await fetcher.get_today_stock_per(shcode="078020")
         # response = await fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
-        response = await fetcher.get_institutional_investor_sale_trend(market="1", upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
+        # response = await fetcher.get_institutional_investor_sale_trend(market="1", upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
+        response = await fetcher.get_etf_composition(shcode="448330", date="20240104", sgb="1")
 
         print(response)
 
