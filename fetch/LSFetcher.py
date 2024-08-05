@@ -167,8 +167,8 @@ class LSFetcher(BaseFetcher):
                 f"{self.BASE_URL}/stock/chart", headers=headers, data=json.dumps(body)
             )
 
-        stocks = response.json()["t1665OutBlock1"]
-        return stocks
+        sale_trends = response.json()["t1665OutBlock1"]
+        return sale_trends
     
     async def get_specific_investor_sale_trend(self, market: str, upcode: str, gubun2: str, gubun3: str, from_date: str, to_date: str, sv_code: str, sa_code: str) -> List[Dict]:
         total_investor_sale_trends = await self.get_investor_sale_trend(market, upcode, gubun2, gubun3, from_date, to_date)
@@ -228,7 +228,49 @@ class LSFetcher(BaseFetcher):
             })
 
         return etf_comp_summary
+    
+    async def get_high_fluctuation_item(self, amount: int, gubun2: str):
+        headers = {
+            "content-type": "application/json; charset=utf-8",
+            "authorization": f"Bearer {self.api_key}",
+            "tr_cd": "t1441",
+            "tr_cont": "N",
+        }
+        body = {"t1441InBlock": {
+            "gubun1": "0",
+            "gubun2": gubun2, # 상승률: 0, 하락률: 1
+            "gubun3": "1",
+            "jc_num": 0,
+            "sprice": 0,
+            "eprice": 0,
+            "volume": 0,
+            "idx": 0,
+            "jc_num2": 0,
+        }}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.BASE_URL}/stock/high-item", headers=headers, data=json.dumps(body)
+            )
+
+        high_items = response.json()["t1441OutBlock1"]
+        result = []
+
+        for high_item in high_items[:amount]:
+            hname = high_item["hname"]
+            increase_rate = high_item["jnildiff"]
+            result.append({
+                "hname": hname,
+                "increase_rate": increase_rate,
+            })
+        return result
         
+    async def get_high_increase_rate_item(self, amount: int): # 전일 상승률 상위 종목
+        return await self.get_high_fluctuation_item(amount=amount, gubun2="0")
+    
+    async def get_high_decrease_rate_item(self, amount: int): # 전일 하락률 상위 종목
+        return await self.get_high_fluctuation_item(amount=amount, gubun2="1")
+
 
 if __name__ == "__main__":
 
@@ -237,7 +279,8 @@ if __name__ == "__main__":
         # response = await fetcher.get_today_stock_per(shcode="078020")
         # response = await fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
         # response = await fetcher.get_institutional_investor_sale_trend(market="1", upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
-        response = await fetcher.get_etf_composition(shcode="448330", date="20240104", sgb="1")
+        # response = await fetcher.get_etf_composition(shcode="448330", date="20240104", sgb="1")
+        response = await fetcher.get_high_decrease_rate_item(amount=5)
 
         print(response)
 
