@@ -17,12 +17,13 @@ class LSFetcher(BaseFetcher):
         self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
         super().__init__(self.get_access_token())
 
-    async def fetch_data(self, url, payload={}):
+    async def fetch_data(self, url, headers={}, body={}):
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(url=url, data=json.dumps(payload))
-                response.raise_for_status()  # Raise an error for bad responses
-                return response.json()  # Assuming API returns JSON data
+                response = await client.post(
+                    f"{self.BASE_URL}/{url}", headers=headers, data=json.dumps(body)
+                )
+                return response
             except httpx.HTTPStatusError as e:
                 print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
             except Exception as e:
@@ -66,10 +67,7 @@ class LSFetcher(BaseFetcher):
         }
         body = {"t1102InBlock": {"shcode": shcode}}
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.BASE_URL}/stock/market-data", headers=headers, data=json.dumps(body)
-            )
+        response = await self.fetch_data(url="stock/market-data", headers=headers, body=body)
 
         stocks = response.json()["t1102OutBlock"]
         return stocks
@@ -138,10 +136,7 @@ class LSFetcher(BaseFetcher):
             "comp_yn": "N",
         }}
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.BASE_URL}/stock/chart", headers=headers, data=json.dumps(body)
-            )
+        response = await self.fetch_data(url="stock/chart", headers=headers, body=body)
 
         stocks = response.json()["t8412OutBlock1"]
         return stocks
@@ -162,10 +157,7 @@ class LSFetcher(BaseFetcher):
             "to_date": to_date, # "YYYYMMDD"
         }}
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.BASE_URL}/stock/chart", headers=headers, data=json.dumps(body)
-            )
+        response = await self.fetch_data(url="stock/chart", headers=headers, body=body)
 
         sale_trends = response.json()["t1665OutBlock1"]
         return sale_trends
@@ -210,10 +202,7 @@ class LSFetcher(BaseFetcher):
             "sgb": sgb,
         }}
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.BASE_URL}/stock/etf", headers=headers, data=json.dumps(body)
-            )
+        response = await self.fetch_data(url="stock/etf", headers=headers, body=body)
 
         etf_comp_total = response.json()["t1904OutBlock1"]
         etf_comp_summary = []
@@ -248,10 +237,7 @@ class LSFetcher(BaseFetcher):
             "jc_num2": 0,
         }}
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.BASE_URL}/stock/high-item", headers=headers, data=json.dumps(body)
-            )
+        response = await self.fetch_data(url="stock/high-item", headers=headers, body=body)
 
         high_items = response.json()["t1441OutBlock1"]
         result = []
@@ -276,11 +262,11 @@ if __name__ == "__main__":
 
     async def main():
         fetcher = LSFetcher()
-        # response = await fetcher.get_today_stock_per(shcode="078020")
+        response = await fetcher.get_today_stock_per(shcode="078020")
         # response = await fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
         # response = await fetcher.get_institutional_investor_sale_trend(market="1", upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
         # response = await fetcher.get_etf_composition(shcode="448330", date="20240104", sgb="1")
-        response = await fetcher.get_high_decrease_rate_item(amount=5)
+        # response = await fetcher.get_high_decrease_rate_item(amount=5)
 
         print(response)
 
