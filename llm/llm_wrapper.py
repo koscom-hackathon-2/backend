@@ -1,6 +1,7 @@
 import base64
 import os
 import re
+import time
 from io import BytesIO
 
 import requests
@@ -76,7 +77,7 @@ class GPTCodeGenerator:
         query_content = [
             {
                 "type": "text",
-                "text": f"아래의 그래프 이미지를 그리기 위한 파이썬 코드를 참고하여 그래프 이미지에 대해 설명해줘.\n\n{code_block}"
+                "text": f"아래의 그래프 이미지를 그리기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘.\n\n{code_block}"
             },
             {
                 "type": "image_url",
@@ -89,11 +90,17 @@ class GPTCodeGenerator:
             "role": "user",
             "content": query_content
         })
+
+        execution_start_time = time.time()
+
         response = self.client.chat.completions.create(
             model="gpt-4o",
             messages=self.messages,
             temperature=0.2,
         )
+
+        execution_duration = time.time() - execution_start_time
+        print(f"Generate image description successfully in {execution_duration}seconds.")
 
         return response.choices[0].message.content
 
