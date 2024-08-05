@@ -56,12 +56,12 @@ class LSFetcher(BaseFetcher):
             )
             return None
         
-    async def get_stock_infos(self, shcode: str) -> dict:
+    async def get_today_stock_infos(self, shcode: str) -> dict:
         headers = {
             "content-type": "application/json; charset=utf-8",
             "authorization": f"Bearer {self.api_key}",
             "tr_cd": "t1102",
-            "tr_cont": "Y",
+            "tr_cont": "N",
         }
         body = {"t1102InBlock": {"shcode": shcode}}
 
@@ -73,27 +73,60 @@ class LSFetcher(BaseFetcher):
         stocks = response.json()["t1102OutBlock"]
         return stocks
     
-    async def get_stock_hname(self, shcode:str) -> str:
+    async def get_today_stock_hname(self, shcode:str) -> str: # 한글명
         stock_infos = await self.get_stock_infos(shcode=shcode)
 
         return stock_infos["hname"]
     
-    async def get_stock_price(self, shcode: str) -> int:
+    async def get_today_stock_price(self, shcode: str) -> int: # 현재가
         stock_infos = await self.get_stock_infos(shcode=shcode)
 
         return stock_infos["price"]
     
-    async def get_stock_change(self, shcode: str) -> str:
+    async def get_today_tock_diff(self, shcode: str) -> int: # 등락율
         stock_infos = await self.get_stock_infos(shcode=shcode)
 
-        return stock_infos["change"]
+        return stock_infos["diff"]
+    
+    async def get_today_stock_volume(self, shcode: str) -> int: # 누적거래량
+        stock_infos = await self.get_stock_infos(shcode=shcode)
+
+        return stock_infos["volume"]
+    
+    async def get_stock_chart_info(self, shcode: str, ncnt: int, sdate: str = "", edate: str = ""):
+        headers = {
+            "content-type": "application/json; charset=utf-8",
+            "authorization": f"Bearer {self.api_key}",
+            "tr_cd": "t8412",
+            "tr_cont": "N",
+        }
+        body = {"t8412InBlock": {
+            "shcode": shcode,
+            "ncnt": ncnt,
+            "qrycnt": 0,
+            "nday": "0",
+            "sdate": sdate, # "20240101"
+            "edate": edate, # "20241231"
+            "cts_date": "",
+            "cts_time": "",
+            "comp_yn": "N",
+        }}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.BASE_URL}/stock/chart", headers=headers, data=json.dumps(body)
+            )
+
+        stocks = response.json()["t8412OutBlock1"]
+        return stocks
     
 
 if __name__ == "__main__":
 
     async def main():
         fetcher = LSFetcher()
-        response = await fetcher.get_stock_change("078020")
+        response = await fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
+        # response = await fetcher.get_today_stock_infos(shcode="078020")
 
         print(response)
 
