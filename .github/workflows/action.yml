@@ -20,6 +20,9 @@ jobs:
       - name: Create .env file for code_exec
         run: echo "${{ secrets.ENV_CODE_EXEC }}" > code_exec/.env
 
+      - name: Create .env file for fetch module
+        run: echo "${{ secrets.ENV_FETCH }}" > code_exec/fetch/.env
+
       - name: Create .env file for llm
         run: echo "${{ secrets.ENV_LLM }}" > llm/.env
 
