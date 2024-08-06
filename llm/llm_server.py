@@ -2,7 +2,7 @@ import json
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from llm_wrapper import ChatResponse, GPTCodeGenerator
+from llm_wrapper import ChatResponse, GPTCodeGenerator, GPTNewsGenerator
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -32,6 +32,12 @@ async def chat_completion(request: ChatCompletionRequest) -> ChatResponse:
     gpt_interpreter = GPTCodeGenerator()
     return gpt_interpreter.chat(user_message)
 
+@app.post("/news")
+async def chat_news(request: ChatCompletionRequest) -> ChatResponse:
+    user_message = request.user_message
+    gpt_interpreter = GPTNewsGenerator()
+    result = gpt_interpreter.chat(user_message)
+    return result
 
 if __name__ == "__main__":
     import uvicorn
