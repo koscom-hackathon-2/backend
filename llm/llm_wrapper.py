@@ -1,6 +1,7 @@
 import base64
 import os
 import re
+import sys
 import time
 from io import BytesIO
 
@@ -22,7 +23,8 @@ class ChatResponse(BaseModel):
 
 assert os.path.isfile(".env"), ".env file not found!"
 
-CODE_INTERPRETER_SYSTEM_PROMPT = "You are code-interpreter GPT that can execute code by generation of code in ```python\n(here)```. You can access real-time stock data through y-finance library."
+with open("code_interpreter_system_prompt.txt", "r") as f:
+    CODE_INTERPRETER_SYSTEM_PROMPT = f.read()
 
 IMAGE_DESCRIPTOR_SYSTEM_PROMPT= "너는 그래프 이미지에서 확인할 수 있는 정보를 찾아내는 역할을 할거야. 그래프 이미지를 생성하기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘."
 
@@ -164,8 +166,3 @@ class GPTCodeGenerator:
         print(f"{text_result=}")
         code_exec_result = CodeExecResult(text= text_result, image=image_result)
         return ChatResponse(generated_code=code_block, code_exec_result=code_exec_result)
-
-if __name__ == "__main__":
-    gpt_generator = GPTCodeGenerator()
-    for char in gpt_generator.chat("what is 10th fibonacci number?"):
-        print(char, end="")
