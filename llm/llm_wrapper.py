@@ -31,7 +31,7 @@ assert os.path.isfile(".env"), ".env file not found!"
 with open("code_interpreter_system_prompt.txt", "r") as f:
     CODE_INTERPRETER_SYSTEM_PROMPT = f.read()
 
-IMAGE_DESCRIPTOR_SYSTEM_PROMPT = "너는 그래프 이미지에서 확인할 수 있는 정보를 찾아내는 역할을 할거야. 그래프 이미지를 생성하기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘."
+IMAGE_DESCRIPTOR_SYSTEM_PROMPT = "너는 그래프 이미지에서 확인할 수 있는 정보를 찾아내는 역할을 할거야. 그래프 이미지를 생성하기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘. 답변을 생성할 때는 반드시 한국어로 답변해."
 
 EXTRACT_KEYWORD_SYSTEM_PROMPT = "너는 텍스트에서 키워드를 추출하는 역할을 할거야. 이 키워드는 구글에서 뉴스를 검색하는 용도로 사용할거야. 예를 들어서 [삼성전자 종가 기준 10년 그래프를 그려줘] 라는 사용자 입력이 있을 때, 여기서 '삼성전자 종가'를 추출해줘."
 
