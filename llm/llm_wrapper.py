@@ -213,7 +213,7 @@ class GPTCodeGenerator:
                 break
 
             if code_blocks := self.extract_code_blocks(generated_text):
-                code_block = code_blocks[-1]
+                code_block = code_blocks[0]
                 code_output, img_raw = self.execute_code(code_block)
 
                 if img_raw:
