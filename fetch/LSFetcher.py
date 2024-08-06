@@ -7,7 +7,6 @@ import httpx
 import requests
 from BaseFetcher import BaseFetcher
 from decouple import config
-from requests import Session
 
 # from .BaseFetcher import BaseFetcher
 
@@ -22,11 +21,11 @@ class LSFetcher(BaseFetcher):
         self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
         super().__init__(self.get_access_token())
 
-    def fetch_data(self, url, headers={}, body={}):
-        with Session() as session:
+    async def fetch_data(self, url, headers={}, body={}):
+        async with httpx.AsyncClient() as client:
             try:
-                response = session.request(
-                    method="post", url=f"{self.BASE_URL}/{url}", headers=headers, data=json.dumps(body)
+                response = await client.post(
+                    f"{self.BASE_URL}/{url}", headers=headers, data=json.dumps(body)
                 )
                 return response
             except httpx.HTTPStatusError as e:
@@ -65,7 +64,7 @@ class LSFetcher(BaseFetcher):
             )
             return None
 
-    def get_today_stock_infos(self, shcode: str) -> dict:
+    async def get_today_stock_infos(self, shcode: str) -> dict:
         headers = {
             "content-type": "application/json; charset=utf-8",
             "authorization": f"Bearer {self.api_key}",
@@ -74,16 +73,16 @@ class LSFetcher(BaseFetcher):
         }
         body = {"t1102InBlock": {"shcode": shcode}}
 
-        response = self.fetch_data(
+        response = await self.fetch_data(
             url="stock/market-data", headers=headers, body=body
         )
 
         stocks = response.json()["t1102OutBlock"]
         return stocks
 
-    def get_today_stock_hname(self, shcode: str) -> str:  # 한글명
+    async def get_today_stock_hname(self, shcode: str) -> str:  # 한글명
         """
-        Retrieves the Korean name of a stock from today's stock market data.
+        Retrieves the Korean name of a stock from today's stock market data asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose Korean name you want to fetch.
@@ -91,13 +90,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             str: The Korean name of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["hname"]
 
-    def get_today_stock_price(self, shcode: str) -> int:  # 현재가
+    async def get_today_stock_price(self, shcode: str) -> int:  # 현재가
         """
-        Retrieves the current price of a given stock.
+        Retrieves the current price of a given stock asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose price of which should be returned.
@@ -105,13 +104,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The current price of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["price"]
 
-    def get_today_stock_diff(self, shcode: str) -> int:  # 등락율
+    async def get_today_stock_diff(self, shcode: str) -> int:  # 등락율
         """
-        Retrieves the price fluctuation rate of a given stock.
+        Retrieves the price fluctuation rate of a given stock asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose fluctuation rate of which should be returned.
@@ -119,13 +118,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The fluctuation rate of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["diff"]
 
-    def get_today_stock_volume(self, shcode: str) -> int:  # 누적거래량
+    async def get_today_stock_volume(self, shcode: str) -> int:  # 누적거래량
         """
-        Retrieves the accumulated trading volume of a given stock.
+        Retrieves the accumulated trading volume of a given stock asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose trading volume of which should be returned.
@@ -133,13 +132,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The accumulated trading volume of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["volume"]
 
-    def get_today_stock_open(self, shcode: str) -> int:  # 시가
+    async def get_today_stock_open(self, shcode: str) -> int:  # 시가
         """
-        Retrieves the opening price of a given stock of today.
+        Retrieves the opening price of a given stock of today asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose opening price of which should be returned.
@@ -147,13 +146,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The opening price of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["open"]
 
-    def get_today_stock_high(self, shcode: str) -> int:  # 고가
+    async def get_today_stock_high(self, shcode: str) -> int:  # 고가
         """
-        Retrieves the highest price of a given stock of today.
+        Retrieves the highest price of a given stock of today asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose highest price of which should be returned.
@@ -161,13 +160,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The highest price of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["high"]
 
-    def get_today_stock_low(self, shcode: str) -> int:  # 저가
+    async def get_today_stock_low(self, shcode: str) -> int:  # 저가
         """
-        Retrieves the lowest price of a given stock of today.
+        Retrieves the lowest price of a given stock of today asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose lowest price of which should be returned.
@@ -175,13 +174,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The lowest price of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["low"]
 
-    def get_today_stock_per(self, shcode: str) -> int:  # PER
+    async def get_today_stock_per(self, shcode: str) -> int:  # PER
         """
-        Retrieves the price-to-earnings ratio (PER) of a given stock of today.
+        Retrieves the price-to-earnings ratio (PER) of a given stock of today asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose PER of which should be returned.
@@ -189,13 +188,13 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The PER of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["per"]
 
-    def get_today_stock_total(self, shcode: str) -> int:  # 시가 총액
+    async def get_today_stock_total(self, shcode: str) -> int:  # 시가 총액
         """
-        Retrieves the market capitalization of a given stock of today.
+        Retrieves the market capitalization of a given stock of today asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose market capitalization of which should be returned.
@@ -203,15 +202,15 @@ class LSFetcher(BaseFetcher):
         Returns:
             int: The market capitalization of the provided stock.
         """
-        stock_infos = self.get_today_stock_infos(shcode=shcode)
+        stock_infos = await self.get_today_stock_infos(shcode=shcode)
 
         return stock_infos["total"]
 
-    def get_stock_chart_info(
+    async def get_stock_chart_info(
         self, shcode: str, ncnt: int, sdate: str = "", edate: str = ""
     ):  # 주식 차트
         """
-        Retrieves the stock chart information for a given stock.
+        Retrieves the stock chart information for a given stock asynchronously.
 
         Args:
             shcode (str): The stock code of the stock whose chart information you want to fetch.
@@ -250,13 +249,14 @@ class LSFetcher(BaseFetcher):
             }
         }
 
-        response = self.fetch_data(url="stock/chart", headers=headers, body=body)
+        response = await self.fetch_data(url="stock/chart", headers=headers, body=body)
 
         stocks = response.json()["t8412OutBlock1"]
         return stocks
 
-    def get_investor_sale_trend(
+    async def get_investor_sale_trend(
         self,
+        market: str,
         upcode: str,
         gubun2: str,
         gubun3: str,
@@ -280,12 +280,12 @@ class LSFetcher(BaseFetcher):
             }
         }
 
-        response = self.fetch_data(url="stock/chart", headers=headers, body=body)
+        response = await self.fetch_data(url="stock/chart", headers=headers, body=body)
 
         sale_trends = response.json()["t1665OutBlock1"]
         return sale_trends
 
-    def get_specific_investor_sale_trend(
+    async def get_specific_investor_sale_trend(
         self,
         upcode: str,
         gubun2: str,
@@ -295,7 +295,7 @@ class LSFetcher(BaseFetcher):
         sv_code: str,
         sa_code: str,
     ) -> List[Dict]:
-        total_investor_sale_trends = self.get_investor_sale_trend(
+        total_investor_sale_trends = await self.get_investor_sale_trend(
             upcode, gubun2, gubun3, from_date, to_date
         )
 
@@ -316,7 +316,7 @@ class LSFetcher(BaseFetcher):
 
         return specific_investor_sale_trend
 
-    def get_individual_investor_sale_trend(
+    async def get_individual_investor_sale_trend(
         self,
         upcode: str,
         gubun2: str,
@@ -325,7 +325,7 @@ class LSFetcher(BaseFetcher):
         to_date: str,
     ) -> List[Dict]:
         """
-        Fetches the sale trend of individual investors in the KOSPI.
+        Fetches the sale trend of individual investors in the KOSPI asynchronously.
 
         Args:
             upcode (str): The upcode of the stock.
@@ -340,7 +340,7 @@ class LSFetcher(BaseFetcher):
                 - sale_volume (int): The trading volume of individual investors
                 - sale_amount (str): the trading amount of individual investors
         """
-        return self.get_specific_investor_sale_trend(
+        return await self.get_specific_investor_sale_trend(
             upcode,
             gubun2,
             gubun3,
@@ -350,7 +350,7 @@ class LSFetcher(BaseFetcher):
             sa_code="sa_08",
         )
 
-    def get_foreign_investor_sale_trend(
+    async def get_foreign_investor_sale_trend(
         self,
         upcode: str,
         gubun2: str,
@@ -359,7 +359,7 @@ class LSFetcher(BaseFetcher):
         to_date: str,
     ) -> List[Dict]:
         """
-        Fetches the sale trend of foreign investors in the KOSPI.
+        Fetches the sale trend of foreign investors in the KOSPI asynchronously.
 
         Args:
             upcode (str): The upcode of the stock.
@@ -375,7 +375,7 @@ class LSFetcher(BaseFetcher):
                 - sale_amount (str): the trading amount of foreign investors
         """
 
-        return self.get_specific_investor_sale_trend(
+        return await self.get_specific_investor_sale_trend(
             upcode,
             gubun2,
             gubun3,
@@ -385,7 +385,7 @@ class LSFetcher(BaseFetcher):
             sa_code="sa_17",
         )
 
-    def get_institutional_investor_sale_trend(
+    async def get_institutional_investor_sale_trend(
         self,
         upcode: str,
         gubun2: str,
@@ -394,7 +394,7 @@ class LSFetcher(BaseFetcher):
         to_date: str,
     ) -> List[Dict]:
         """
-        Fetches the sale trend of institutional investors in the KOSPI.
+        Fetches the sale trend of institutional investors in the KOSPI asynchronously.
 
         Args:
             upcode (str): The upcode of the stock.
@@ -410,7 +410,7 @@ class LSFetcher(BaseFetcher):
                 - sale_amount (str): the trading amount of institutional investors
         """
 
-        return self.get_specific_investor_sale_trend(
+        return await self.get_specific_investor_sale_trend(
             upcode,
             gubun2,
             gubun3,
@@ -420,9 +420,9 @@ class LSFetcher(BaseFetcher):
             sa_code="sa_18",
         )
 
-    def get_etf_composition(self, shcode: str, date: str, sgb: str):
+    async def get_etf_composition(self, shcode: str, date: str, sgb: str):
         """
-        Fetches the ETF composition for a given stock.
+        Fetches the ETF composition for a given stock asynchronously.
 
         Args:
             shcode (str): The stock code of the ETF.
@@ -448,7 +448,7 @@ class LSFetcher(BaseFetcher):
             }
         }
 
-        response = self.fetch_data(url="stock/etf", headers=headers, body=body)
+        response = await self.fetch_data(url="stock/etf", headers=headers, body=body)
 
         etf_comp_total = response.json()["t1904OutBlock1"]
         etf_comp_summary = []
@@ -466,7 +466,7 @@ class LSFetcher(BaseFetcher):
 
         return etf_comp_summary
 
-    def get_high_fluctuation_item(self, amount: int, gubun2: str):
+    async def get_high_fluctuation_item(self, amount: int, gubun2: str):
         headers = {
             "content-type": "application/json; charset=utf-8",
             "authorization": f"Bearer {self.api_key}",
@@ -487,7 +487,7 @@ class LSFetcher(BaseFetcher):
             }
         }
 
-        response = self.fetch_data(
+        response = await self.fetch_data(
             url="stock/high-item", headers=headers, body=body
         )
 
@@ -514,9 +514,9 @@ class LSFetcher(BaseFetcher):
                 )
         return result
 
-    def get_high_increase_rate_item(self, amount: int):  # 전일 상승률 상위 종목
+    async def get_high_increase_rate_item(self, amount: int):  # 전일 상승률 상위 종목
         """
-        Fetches the items with the highest increase rates from the previous day.
+        Fetches the items with the highest increase rates from the previous day asynchronously.
 
         Args:
             amount (int): The number of items to fetch.
@@ -526,11 +526,11 @@ class LSFetcher(BaseFetcher):
                 - hname (str): The korean name of stock.
                 - increase_rate (str): the rate of incline compared to the previous day
         """
-        return self.get_high_fluctuation_item(amount=amount, gubun2="0")
+        return await self.get_high_fluctuation_item(amount=amount, gubun2="0")
 
-    def get_high_decrease_rate_item(self, amount: int):  # 전일 하락률 상위 종목
+    async def get_high_decrease_rate_item(self, amount: int):  # 전일 하락률 상위 종목
         """
-        Fetches the items with the highest decrease rates from the previous day.
+        Fetches the items with the highest decrease rates from the previous day asynchronously.
 
         Args:
             amount (int): The number of items to fetch.
@@ -541,24 +541,24 @@ class LSFetcher(BaseFetcher):
                 - decrease_rate (str): The rate of decline compared to the previous day.
         """
 
-        return self.get_high_fluctuation_item(amount=amount, gubun2="1")
+        return await self.get_high_fluctuation_item(amount=amount, gubun2="1")
 
 
 if __name__ == "__main__":
 
     pass
 
-    def main():
+    async def main():
         fetcher = LSFetcher()
-        response = fetcher.get_today_stock_per(shcode="078020")
-        # response = fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
-        # response = fetcher.get_institutional_investor_sale_trend(upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
-        # response = fetcher.get_etf_composition(shcode="448330", date="20240104", sgb="1")
-        # response = fetcher.get_high_decrease_rate_item(amount=5)
+        # response = await fetcher.get_today_stock_per(shcode="078020")
+        # response = await fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
+        # response = await fetcher.get_institutional_investor_sale_trend(market="1", upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
+        # response = await fetcher.get_etf_composition(shcode="448330", date="20240104", sgb="1")
+        response = await fetcher.get_high_decrease_rate_item(amount=5)
 
         print(response)
         # print(fetcher.get_high_decrease_rate_item.__doc__)
 
         
 
-    main()
+    asyncio.run(main())
