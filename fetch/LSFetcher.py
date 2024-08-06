@@ -5,11 +5,10 @@ from typing import Dict, List
 
 import httpx
 import requests
+from BaseFetcher import BaseFetcher
 from decouple import config
 
-from .BaseFetcher import BaseFetcher
-
-assert os.path.isfile(os.path.join(os.path.abspath(os.path.dirname(__file__)), ".env")), ".env file not found!"
+assert os.path.isfile(".env"), ".env file not found!"
 
 
 class LSFetcher(BaseFetcher):
@@ -489,7 +488,6 @@ class LSFetcher(BaseFetcher):
             url="stock/high-item", headers=headers, body=body
         )
 
-        print(response.json())
         high_items = response.json()["t1441OutBlock1"]
         result = []
 
@@ -544,8 +542,6 @@ class LSFetcher(BaseFetcher):
 
 if __name__ == "__main__":
 
-    pass
-
     async def main():
         fetcher = LSFetcher()
         # response = await fetcher.get_today_stock_per(shcode="078020")
@@ -556,7 +552,5 @@ if __name__ == "__main__":
 
         print(response)
         # print(fetcher.get_high_decrease_rate_item.__doc__)
-
-        
 
     asyncio.run(main())
