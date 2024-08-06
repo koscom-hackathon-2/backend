@@ -33,7 +33,7 @@ with open("code_interpreter_system_prompt.txt", "r") as f:
 
 IMAGE_DESCRIPTOR_SYSTEM_PROMPT = "너는 그래프 이미지에서 확인할 수 있는 정보를 찾아내는 역할을 할거야. 그래프 이미지를 생성하기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘. 답변을 생성할 때는 반드시 한국어로 답변해."
 
-EXTRACT_KEYWORD_SYSTEM_PROMPT = "너는 텍스트에서 키워드를 추출하는 역할을 할거야. 이 키워드는 구글에서 뉴스를 검색하는 용도로 사용할거야. 예를 들어서 [삼성전자 종가 기준 10년 그래프를 그려줘] 라는 사용자 입력이 있을 때, 여기서 '삼성전자 종가'를 추출해줘."
+EXTRACT_KEYWORD_SYSTEM_PROMPT = "너는 텍스트에서 하나의 키워드를 추출하는 역할을 할거야. 이 키워드는 구글에서 뉴스를 검색하는 용도로 사용할거야. 예를 들어서 [삼성전자 종가 기준 10년 그래프를 그려줘] 라는 사용자 입력이 있을 때, 여기서 '삼성전자'를 추출해줘야 해. 즉, 기업명을 추출해줘. 또 다른 예시로는 [KOSPI 200 지수 10년 그래프를 그려줘] 라는 사용자 입력이 있을 때, 여기서는 'KOSPI 200'을 추출해줘야 해."
 
 
 def distinguish_and_handle(input_str):
@@ -104,6 +104,7 @@ class GPTAgent:
 
         return assistant_message
 
+
 class GPTNewsGenerator:
     def __init__(self, model="gpt-4"):
         self.model = model
@@ -111,6 +112,7 @@ class GPTNewsGenerator:
         self.client = OpenAI(api_key=config("OPENAI_API_KEY"))
 
         # 요약 키워드(검색어) 추출
+
     def extract_keyword(self, user_input: str):
         agent = GPTAgent(system_message=EXTRACT_KEYWORD_SYSTEM_PROMPT)
         keyword = agent.chat(f"[{user_input}]에서 키워드를 추출해주세요.")
@@ -132,7 +134,7 @@ class GPTNewsGenerator:
         return ChatResponse(
             generated_code="",
             code_exec_result=code_exec_result,
-            news_result=news_result
+            news_result=news_result,
         )
 
 
