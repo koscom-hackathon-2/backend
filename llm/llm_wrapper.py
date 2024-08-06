@@ -118,7 +118,6 @@ class GPTCodeGenerator:
             model=self.model,
             messages=self.dialog,
             temperature=0,
-            top_p=1.0,
             stream=True,
         )
 
@@ -185,9 +184,11 @@ class GPTCodeGenerator:
         code_blocks = re.findall(pattern, text, re.DOTALL)
         return [block.strip() for block in code_blocks]
 
-    def chat(self, user_message: str, max_try: int = 3):
+    def chat(self, user_message: str, max_try: int = 1):
         print(colored(user_message, "blue"))
         self.dialog.append({"role": "user", "content": user_message})
+
+        total_start_time = time.time()
 
         image_result = None
         text_result = None
@@ -240,6 +241,8 @@ class GPTCodeGenerator:
 
         print(f"=== text_result : {text_result} ===")
         code_exec_result = CodeExecResult(text=text_result, image=image_result)
+
+        print(f"=== Total Execution Time: {time.time() - total_start_time} ===")
 
         return ChatResponse(
             generated_code=code_block,

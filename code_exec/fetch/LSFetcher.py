@@ -8,12 +8,15 @@ import requests
 from BaseFetcher import BaseFetcher
 from decouple import config
 from requests import Session
+from urllib3 import disable_warnings
+from urllib3.exceptions import InsecureRequestWarning
 
 # from .BaseFetcher import BaseFetcher
 
 # assert os.path.isfile(os.path.join(os.path.abspath(os.path.dirname(__file__)), ".env")), ".env file not found!"
 assert os.path.isfile(".env"), ".env file not found!"
 
+disable_warnings(InsecureRequestWarning)
 
 class LSFetcher(BaseFetcher):
     BASE_URL = "https://openapi.ls-sec.co.kr:8080"
@@ -491,7 +494,6 @@ class LSFetcher(BaseFetcher):
             url="stock/high-item", headers=headers, body=body
         )
 
-        print(response.json())
         high_items = response.json()["t1441OutBlock1"]
         result = []
 
@@ -550,10 +552,10 @@ if __name__ == "__main__":
 
     def main():
         fetcher = LSFetcher()
-        response = fetcher.get_today_stock_per(shcode="078020")
+        # response = fetcher.get_today_stock_per(shcode="078020")
         # response = fetcher.get_stock_chart_info(shcode="078020", ncnt=60, sdate="20240601", edate="20240710")
         # response = fetcher.get_institutional_investor_sale_trend(upcode="001", gubun2="1", gubun3="1", from_date="20240701", to_date="20240801")
-        # response = fetcher.get_etf_composition(shcode="448330", date="20240104", sgb="1")
+        response = fetcher.get_etf_composition(shcode="069500", date="20220103", sgb="1")
         # response = fetcher.get_high_decrease_rate_item(amount=5)
 
         print(response)

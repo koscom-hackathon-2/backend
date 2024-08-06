@@ -8,7 +8,33 @@ from fastapi import FastAPI, HTTPException, Request
 assert os.path.isfile(".env"), ".env file not found!"
 os.environ["CODEBOX_API_KEY"] = config("CODEBOX_API_KEY")
 
+session_id = None
+
 app = FastAPI()
+
+@app.on_event("startup")
+def startup_event():
+    global session_id
+
+    codebox = CodeBox()
+    codebox.start()
+
+    with open("./fetch/LSFetcher.py", "r") as f:
+        raw_python_file = f.read()
+    codebox.upload("LSFetcher.py", raw_python_file)
+
+    with open("./fetch/BaseFetcher.py", "r") as f:
+        raw_base_file = f.read()
+    codebox.upload("BaseFetcher.py", raw_base_file)
+
+    with open("./fetch/.env", "r") as f:
+        env_file = f.read()
+    codebox.upload(".env", env_file)
+
+    codebox.install("httpx")
+    codebox.install("python-decouple")
+
+    session_id = codebox.session_id
 
 @app.post("/execute")
 async def execute_code(request: Request):
@@ -21,27 +47,14 @@ async def execute_code(request: Request):
         print("Deserialization Time:", time.time() - start_time)
         print("Code extracted successfully")
 
-        with CodeBox() as codebox:
-            with open("./fetch/LSFetcher.py", "r") as f:
-                raw_python_file = f.read()
-            codebox.upload("LSFetcher.py", raw_python_file)
-
-            with open("./fetch/BaseFetcher.py", "r") as f:
-                raw_base_file = f.read()
-            codebox.upload("BaseFetcher.py", raw_base_file)
-
-            with open("./fetch/.env", "r") as f:
-                env_file = f.read()
-            codebox.upload(".env", env_file)
-
-            codebox.install("httpx")
-            codebox.install("python-decouple")
-            print(f"{codebox.list_files()=}")
-            execution_start_time = time.time()
-            print("Executing code with CodeBox")
-            result = codebox.run(code)
-            execution_duration = time.time() - execution_start_time
-            print("Code executed successfully in", execution_duration, "seconds")
+        # Restore session
+        codebox = CodeBox.from_id(session_id)
+        
+        execution_start_time = time.time()
+        print("Executing code with CodeBox")
+        result = codebox.run(code)
+        execution_duration = time.time() - execution_start_time
+        print("Code executed successfully in", execution_duration, "seconds")
 
         total_time = time.time() - start_time
         print("Total time taken to process the request:", total_time, "seconds")
