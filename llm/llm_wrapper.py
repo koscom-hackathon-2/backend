@@ -111,8 +111,6 @@ class GPTCodeGenerator:
         # code_exec API의 endpoint
         url = os.getenv("EXECUTOR_URL", "http://localhost:8081/execute")
 
-        print("===== url : ", url)
-
         response = requests.post(url, json={"code": code})
         result = response.json().get("result", "")
         return distinguish_and_handle(result)
