@@ -8,9 +8,6 @@ import requests
 from BaseFetcher import BaseFetcher
 from decouple import config
 
-# from .BaseFetcher import BaseFetcher
-
-# assert os.path.isfile(os.path.join(os.path.abspath(os.path.dirname(__file__)), ".env")), ".env file not found!"
 assert os.path.isfile(".env"), ".env file not found!"
 
 
