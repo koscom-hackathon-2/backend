@@ -15,6 +15,9 @@ app = FastAPI()
 
 @app.on_event("startup")
 def startup_event():
+    start_codebox()
+
+def start_codebox():
     global session_id
 
     codebox = CodeBox()
@@ -40,6 +43,7 @@ def startup_event():
 @app.post("/execute")
 async def execute_code(request: Request):
     try:
+        
         start_time = time.time()
 
         body = await request.json()
@@ -50,6 +54,8 @@ async def execute_code(request: Request):
 
         # Restore session
         codebox = CodeBox.from_id(session_id)
+        if not codebox.list_files():
+            start_codebox()
         logging.warning(codebox.list_files())
 
         execution_start_time = time.time()
