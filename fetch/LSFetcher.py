@@ -488,6 +488,7 @@ class LSFetcher(BaseFetcher):
             url="stock/high-item", headers=headers, body=body
         )
 
+        print(response.json())
         high_items = response.json()["t1441OutBlock1"]
         result = []
 
@@ -542,6 +543,8 @@ class LSFetcher(BaseFetcher):
 
 if __name__ == "__main__":
 
+    pass
+
     async def main():
         fetcher = LSFetcher()
         # response = await fetcher.get_today_stock_per(shcode="078020")
@@ -552,5 +555,7 @@ if __name__ == "__main__":
 
         print(response)
         # print(fetcher.get_high_decrease_rate_item.__doc__)
+
+        
 
     asyncio.run(main())

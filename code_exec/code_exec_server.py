@@ -22,6 +22,21 @@ async def execute_code(request: Request):
         print("Code extracted successfully")
 
         with CodeBox() as codebox:
+            with open("../fetch/LSFetcher.py", "r") as f:
+                raw_python_file = f.read()
+            codebox.upload("LSFetcher.py", raw_python_file)
+
+            with open("../fetch/BaseFetcher.py", "r") as f:
+                raw_base_file = f.read()
+            codebox.upload("BaseFetcher.py", raw_base_file)
+
+            with open("../fetch/.env", "r") as f:
+                env_file = f.read()
+            codebox.upload(".env", env_file)
+
+            codebox.install("httpx")
+            codebox.install("python-decouple")
+            print(f"{codebox.list_files()=}")
             execution_start_time = time.time()
             print("Executing code with CodeBox")
             result = codebox.run(code)

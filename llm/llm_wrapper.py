@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import re
+import sys
 import time
 from collections import deque
 from io import BytesIO
@@ -27,7 +28,8 @@ class ChatResponse(BaseModel):
 
 assert os.path.isfile(".env"), ".env file not found!"
 
-CODE_INTERPRETER_SYSTEM_PROMPT = "You are code-interpreter GPT that can execute code by generation of code in ```python\n(here)```. You can access real-time stock data through y-finance library."
+with open("code_interpreter_system_prompt.txt", "r") as f:
+    CODE_INTERPRETER_SYSTEM_PROMPT = f.read()
 
 IMAGE_DESCRIPTOR_SYSTEM_PROMPT = "너는 그래프 이미지에서 확인할 수 있는 정보를 찾아내는 역할을 할거야. 그래프 이미지를 생성하기 위한 파이썬 코드를 참고하여 그래프 이미지에서 확인할 수 있는 정보에 대해 설명해줘."
 
@@ -172,8 +174,6 @@ class GPTCodeGenerator:
     def execute_code(code: str) -> str:
         # code_exec API의 endpoint
         url = os.getenv("EXECUTOR_URL", "http://localhost:8081/execute")
-
-        print("===== url : ", url)
 
         response = requests.post(url, json={"code": code})
         result = response.json().get("result", "")
