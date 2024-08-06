@@ -4,3 +4,5 @@ jupyter-kernel-gateway==3.0.1
 jupyter==1.0.0
 gunicorn==22.0.0
 python-decouple==3.8
+yfinance
+matplotlib
