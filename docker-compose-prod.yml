@@ -44,7 +44,7 @@ services:
     # 컨테이너가 호스트 시스템의 모든 권한을 얻을 수 있도록 허용 (주의: 보안상의 이유로 사용에 주의가 필요)
     privileged: true
     ports:
-      - '55555:9000' #port 설정 외부:55555(본인이설정), 내부:9000(portainer port)
+      - '9000:9000' #port 설정 외부:9000(본인이설정), 내부:9000(portainer port)
     volumes:
       - './portainer:/data' # 호스트의 ./portainer 디렉토리를 컨테이너 내부의 /data 디렉토리에 마운트 (Portainer 데이터를 저장하기 위해)
       - '/var/run/docker.sock:/var/run/docker.sock' # 호스트의 Docker 소켓을 컨테이너 내부의 Docker 소켓에 마운트 (Docker API에 접근하기 위해)
