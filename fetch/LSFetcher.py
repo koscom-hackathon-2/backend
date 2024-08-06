@@ -26,7 +26,10 @@ class LSFetcher(BaseFetcher):
         with Session() as session:
             try:
                 response = session.request(
-                    method="post", url=f"{self.BASE_URL}/{url}", headers=headers, data=json.dumps(body)
+                    method="post",
+                    url=f"{self.BASE_URL}/{url}",
+                    headers=headers,
+                    data=json.dumps(body),
                 )
                 return response
             except httpx.HTTPStatusError as e:
@@ -74,9 +77,7 @@ class LSFetcher(BaseFetcher):
         }
         body = {"t1102InBlock": {"shcode": shcode}}
 
-        response = self.fetch_data(
-            url="stock/market-data", headers=headers, body=body
-        )
+        response = self.fetch_data(url="stock/market-data", headers=headers, body=body)
 
         stocks = response.json()["t1102OutBlock"]
         return stocks
@@ -89,7 +90,7 @@ class LSFetcher(BaseFetcher):
             shcode (str): The stock code of the stock whose Korean name you want to fetch.
 
         Returns:
-            str: The Korean name of the provided stock.
+            str: The Korean name of the specific stock fetched from today's stock market data.
         """
         stock_infos = self.get_today_stock_infos(shcode=shcode)
 
@@ -100,7 +101,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the current price of a given stock.
 
         Args:
-            shcode (str): The stock code of the stock whose price of which should be returned.
+            shcode (str): The stock code of the stock the price of which should be returned.
 
         Returns:
             int: The current price of the provided stock.
@@ -114,7 +115,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the price fluctuation rate of a given stock.
 
         Args:
-            shcode (str): The stock code of the stock whose fluctuation rate of which should be returned.
+            shcode (str): The stock code of the stock the fluctuation rate of which should be returned.
 
         Returns:
             int: The fluctuation rate of the provided stock.
@@ -128,7 +129,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the accumulated trading volume of a given stock.
 
         Args:
-            shcode (str): The stock code of the stock whose trading volume of which should be returned.
+            shcode (str): The stock code of the stock the trading volume of which should be returned.
 
         Returns:
             int: The accumulated trading volume of the provided stock.
@@ -142,7 +143,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the opening price of a given stock of today.
 
         Args:
-            shcode (str): The stock code of the stock whose opening price of which should be returned.
+            shcode (str): The stock code of the stock the opening price of which should be returned.
 
         Returns:
             int: The opening price of the provided stock.
@@ -156,7 +157,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the highest price of a given stock of today.
 
         Args:
-            shcode (str): The stock code of the stock whose highest price of which should be returned.
+            shcode (str): The stock code of the stock the highest price of which should be returned.
 
         Returns:
             int: The highest price of the provided stock.
@@ -170,7 +171,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the lowest price of a given stock of today.
 
         Args:
-            shcode (str): The stock code of the stock whose lowest price of which should be returned.
+            shcode (str): The stock code of the stock the lowest price of which should be returned.
 
         Returns:
             int: The lowest price of the provided stock.
@@ -184,7 +185,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the price-to-earnings ratio (PER) of a given stock of today.
 
         Args:
-            shcode (str): The stock code of the stock whose PER of which should be returned.
+            shcode (str): The stock code of the stock the PER of which should be returned.
 
         Returns:
             int: The PER of the provided stock.
@@ -198,7 +199,7 @@ class LSFetcher(BaseFetcher):
         Retrieves the market capitalization of a given stock of today.
 
         Args:
-            shcode (str): The stock code of the stock whose market capitalization of which should be returned.
+            shcode (str): The stock code of the stock the market capitalization of which should be returned.
 
         Returns:
             int: The market capitalization of the provided stock.
@@ -220,15 +221,7 @@ class LSFetcher(BaseFetcher):
             edate (str, optional): The end date for the chart data in 'YYYYMMDD' format. Defaults to "".
 
         Returns:
-            List[Dict]: List of the stock chart information.
-                - date (str): The date for the stock data in 'YYYYMMDD' format.
-                - time (str): The time for the stock data in 'hhmmss' format.
-                - open (int): The opening price of the stock.
-                - high (int): The highest price of the stock.
-                - low (int): The lowest price of the stock.
-                - close (int): The closing price of the stock.
-                - jdiff_vol (int): The trading volume of the stock.
-                - value (int): The trading value of the stock.
+            List[Dict]: The stock chart information.
         """
         headers = {
             "content-type": "application/json; charset=utf-8",
@@ -263,6 +256,19 @@ class LSFetcher(BaseFetcher):
         from_date: str,
         to_date: str,
     ) -> List[Dict]:
+        """Fetches the investor sale trend for a given market and period.
+
+        Args:
+            market (str): The market identifier.
+            upcode (str): The upcode of the stock.
+            gubun2 (str): The second classification for the trend data.
+            gubun3 (str): The third classification for the trend data.
+            from_date (str): The start date for the trend data in 'YYYYMMDD' format.
+            to_date (str): The end date for the trend data in 'YYYYMMDD' format.
+
+        Returns:
+            List[Dict]: The investor sale trend data.
+        """
         headers = {
             "content-type": "application/json; charset=utf-8",
             "authorization": f"Bearer {self.api_key}",
@@ -271,7 +277,7 @@ class LSFetcher(BaseFetcher):
         }
         body = {
             "t1665InBlock": {
-                "market": "1",
+                "market": market,
                 "upcode": upcode,
                 "gubun2": gubun2,
                 "gubun3": gubun3,
@@ -287,6 +293,7 @@ class LSFetcher(BaseFetcher):
 
     def get_specific_investor_sale_trend(
         self,
+        market: str,
         upcode: str,
         gubun2: str,
         gubun3: str,
@@ -318,6 +325,7 @@ class LSFetcher(BaseFetcher):
 
     def get_individual_investor_sale_trend(
         self,
+        market: str,
         upcode: str,
         gubun2: str,
         gubun3: str,
@@ -328,6 +336,7 @@ class LSFetcher(BaseFetcher):
         Fetches the sale trend of individual investors in the KOSPI.
 
         Args:
+            market (str): The market identifier.
             upcode (str): The upcode of the stock.
             gubun2 (str): The second classification for the trend data.
             gubun3 (str): The third classification for the trend data.
@@ -335,10 +344,7 @@ class LSFetcher(BaseFetcher):
             to_date (str): The end date for the trend data in 'YYYYMMDD' format.
 
         Returns:
-            List[Dict]: List of the sale trend data for individual investors.
-                - date (str): The date for the trend data in 'YYYYMMDD' format.
-                - sale_volume (int): The trading volume of individual investors
-                - sale_amount (str): the trading amount of individual investors
+            List[Dict]: The sale trend data for individual investors.
         """
         return self.get_specific_investor_sale_trend(
             upcode,
@@ -352,6 +358,7 @@ class LSFetcher(BaseFetcher):
 
     def get_foreign_investor_sale_trend(
         self,
+        market: str,
         upcode: str,
         gubun2: str,
         gubun3: str,
@@ -362,6 +369,7 @@ class LSFetcher(BaseFetcher):
         Fetches the sale trend of foreign investors in the KOSPI.
 
         Args:
+            market (str): The market identifier.
             upcode (str): The upcode of the stock.
             gubun2 (str): The second classification for the trend data.
             gubun3 (str): The third classification for the trend data.
@@ -369,10 +377,7 @@ class LSFetcher(BaseFetcher):
             to_date (str): The end date for the trend data in 'YYYYMMDD' format.
 
         Returns:
-            List[Dict]: List of the sale trend data for foreign investors.
-                - date (str): The date for the trend data in 'YYYYMMDD' format.
-                - sale_volume (int): The trading volume of foreign investors
-                - sale_amount (str): the trading amount of foreign investors
+            List[Dict]: The sale trend data for foreign investors.
         """
 
         return self.get_specific_investor_sale_trend(
@@ -387,6 +392,7 @@ class LSFetcher(BaseFetcher):
 
     def get_institutional_investor_sale_trend(
         self,
+        market: str,
         upcode: str,
         gubun2: str,
         gubun3: str,
@@ -397,6 +403,7 @@ class LSFetcher(BaseFetcher):
         Fetches the sale trend of institutional investors in the KOSPI.
 
         Args:
+            market (str): The market identifier.
             upcode (str): The upcode of the stock.
             gubun2 (str): The second classification for the trend data.
             gubun3 (str): The third classification for the trend data.
@@ -404,10 +411,7 @@ class LSFetcher(BaseFetcher):
             to_date (str): The end date for the trend data in 'YYYYMMDD' format.
 
         Returns:
-            List[Dict]: List of the sale trend data for institutional investors.
-                - date (str): The date for the trend data in 'YYYYMMDD' format.
-                - sale_volume (int): The trading volume of institutional investors
-                - sale_amount (str): the trading amount of institutional investors
+            List[Dict]: The sale trend data for institutional investors.
         """
 
         return self.get_specific_investor_sale_trend(
@@ -430,9 +434,7 @@ class LSFetcher(BaseFetcher):
             sgb (str): The specific classification for the ETF composition data.
 
         Returns:
-            List[Dict]: List of the ETF composition data.
-                - hname (str): The korean name of stock.
-                - weight (str): The ratio of stocks that make up an ETF.
+            List[Dict]: The ETF composition data.
         """
         headers = {
             "content-type": "application/json; charset=utf-8",
@@ -487,9 +489,7 @@ class LSFetcher(BaseFetcher):
             }
         }
 
-        response = self.fetch_data(
-            url="stock/high-item", headers=headers, body=body
-        )
+        response = self.fetch_data(url="stock/high-item", headers=headers, body=body)
 
         print(response.json())
         high_items = response.json()["t1441OutBlock1"]
@@ -497,21 +497,13 @@ class LSFetcher(BaseFetcher):
 
         for high_item in high_items[:amount]:
             hname = high_item["hname"]
-            diff = high_item["jnildiff"]
-            if gubun2 == "0":
-                result.append(
-                    {
-                        "hname": hname,
-                        "increase_rate": diff,
-                    }
-                )
-            else:
-                result.append(
-                    {
-                        "hname": hname,
-                        "decrease_rate": diff,
-                    }
-                )
+            increase_rate = high_item["jnildiff"]
+            result.append(
+                {
+                    "hname": hname,
+                    "increase_rate": increase_rate,
+                }
+            )
         return result
 
     def get_high_increase_rate_item(self, amount: int):  # 전일 상승률 상위 종목
@@ -522,9 +514,7 @@ class LSFetcher(BaseFetcher):
             amount (int): The number of items to fetch.
 
         Returns:
-            List[Dict]: List of the items with the highest increase rates.
-                - hname (str): The korean name of stock.
-                - increase_rate (str): the rate of incline compared to the previous day
+            List[Dict]: The items with the highest increase rates.
         """
         return self.get_high_fluctuation_item(amount=amount, gubun2="0")
 
@@ -536,9 +526,7 @@ class LSFetcher(BaseFetcher):
             amount (int): The number of items to fetch.
 
         Returns:
-            List[Dict]: List of the items with the highest decrease rates.
-                - hname (str): The korean name of stock.
-                - decrease_rate (str): The rate of decline compared to the previous day.
+            List[Dict]: The items with the highest decrease rates.
         """
 
         return self.get_high_fluctuation_item(amount=amount, gubun2="1")
@@ -558,7 +546,5 @@ if __name__ == "__main__":
 
         print(response)
         # print(fetcher.get_high_decrease_rate_item.__doc__)
-
-        
 
     main()
