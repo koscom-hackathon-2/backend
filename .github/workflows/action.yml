@@ -47,18 +47,9 @@ jobs:
 
             ## docker-compose 실행
             sudo chmod 666 /var/run/docker.sock
+            sudo docker rm -f $(docker ps -qa)
 
-            # 8080번 포트 사용중인 컨테이너 삭제
-            CONTAINER_ID=$(sudo docker ps --filter "publish=8080" --format "{{.ID}}")
-            if [ -n "$CONTAINER_ID" ]; then
-              sudo docker rm -f $CONTAINER_ID
-            fi
 
-            # 8081번 포트 사용중인 컨테이너 삭제
-            CONTAINER_ID=$(sudo docker ps --filter "publish=8081" --format "{{.ID}}")
-            if [ -n "$CONTAINER_ID" ]; then
-              sudo docker rm -f $CONTAINER_ID
-            fi
 
             docker compose -f docker-compose-prod.yml pull
             docker compose -f docker-compose-prod.yml up -d
