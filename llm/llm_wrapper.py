@@ -104,6 +104,37 @@ class GPTAgent:
 
         return assistant_message
 
+class GPTNewsGenerator:
+    def __init__(self, model="gpt-4"):
+        self.model = model
+        self.dialog = [{"role": "system", "content": EXTRACT_KEYWORD_SYSTEM_PROMPT}]
+        self.client = OpenAI(api_key=config("OPENAI_API_KEY"))
+
+        # 요약 키워드(검색어) 추출
+    def extract_keyword(self, user_input: str):
+        agent = GPTAgent(system_message=EXTRACT_KEYWORD_SYSTEM_PROMPT)
+        keyword = agent.chat(f"[{user_input}]에서 키워드를 추출해주세요.")
+        return keyword
+
+    def chat(self, user_message: str):
+        print(colored(user_message, "blue"))
+        self.dialog.append({"role": "user", "content": user_message})
+        total_start_time = time.time()
+        search_keyword = ""
+        search_keyword = self.extract_keyword(user_message)
+
+        print(" === search_keyword : ", search_keyword)
+        news_result = get_financial_news(search_keyword)
+        print(" === news_result : ", news_result)
+        print(f"=== Total Execution Time: {time.time() - total_start_time} ===")
+        code_exec_result = CodeExecResult(text="", image="")
+
+        return ChatResponse(
+            generated_code="",
+            code_exec_result=code_exec_result,
+            news_result=news_result
+        )
+
 
 class GPTCodeGenerator:
     def __init__(self, model="gpt-4"):
@@ -253,5 +284,6 @@ class GPTCodeGenerator:
 
 if __name__ == "__main__":
     gpt_generator = GPTCodeGenerator()
+    gpt_news_generator = GPTNewsGenerator()
     for char in gpt_generator.chat("what is 10th fibonacci number?"):
         print(char, end="")
