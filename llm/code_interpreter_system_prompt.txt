@@ -256,29 +256,31 @@ Returns:
 """
 
 
-This is the example how to use get_stock_chart_info() function.
+This is the example how to use get_etf_composition() function.
 ```python
-import pandas as pd
 import matplotlib.pyplot as plt
-
 from LSFetcher import LSFetcher
 
-
-def fetch_stock_data(shcode: str, months: int):
+def fetch_etf_composition(shcode: str, date: str, sgb: str):
     fetcher = LSFetcher()
-    end_date = pd.Timestamp.now()
-    start_date = end_date - pd.DateOffset(months=months)
-    chart_info = fetcher.get_stock_chart_info(shcode, 1, start_date.strftime('%Y%m%d'), end_date.strftime('%Y%m%d'))
-    return chart_info
+    etf_composition = fetcher.get_etf_composition(shcode, date, sgb)
+    return etf_composition
 
 def main():
-    shcode = '035420'  # Naver's stock code
-    data = fetch_stock_data(shcode, 6)
-    df = pd.DataFrame(data)
-    df['date'] = pd.to_datetime(df['date'])
-    df.set_index('date', inplace=True)
-    df[['close', 'low', 'high']].plot(kind='box')
-    plt.title('Naver Stock Price (Close, Low, High) for the Past 6 Months')
+    shcode = '069500'  # KOSPI 200 ETF's stock code
+    date = '20240102'  # Date: January 2, 2024
+    sgb = '1'  # Specific classification for the ETF composition data
+    data = fetch_etf_composition(shcode, date, sgb)
+    
+    # Convert the weight data to float for plotting
+    for item in data:
+        item['weight'] = float(item['weight'])
+    
+    # Create a pie chart
+    labels = [item['hname'] for item in data]
+    sizes = [item['weight'] for item in data]
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%')
+    plt.title('KOSPI 200 ETF Composition on January 2, 2024')
     plt.show()
 
 main()

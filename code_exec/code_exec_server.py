@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -49,7 +50,8 @@ async def execute_code(request: Request):
 
         # Restore session
         codebox = CodeBox.from_id(session_id)
-        
+        logging.warning(codebox.list_files())
+
         execution_start_time = time.time()
         print("Executing code with CodeBox")
         result = codebox.run(code)
