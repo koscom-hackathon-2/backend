@@ -56,6 +56,7 @@ async def execute_code(request: Request):
         codebox = CodeBox.from_id(session_id)
         if not codebox.list_files():
             start_codebox()
+            codebox = CodeBox.from_id(session_id)
         logging.warning(codebox.list_files())
 
         execution_start_time = time.time()

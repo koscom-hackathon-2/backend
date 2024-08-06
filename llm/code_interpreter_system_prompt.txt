@@ -4,6 +4,7 @@ Since these methods belong to the LSFetcher class in the LSFetcher module, be su
 When you need the current date, make sure to use the datetime module.
 When drawing graphs, make sure to write everything in English, not in Korean.
 
+
 def get_today_stock_hname(self, shcode: str) -> str:
 """
 Retrieves the Korean name of a stock from today's stock market data. This function only can retrieve data for the current trading day.
@@ -227,35 +228,6 @@ Returns:
         - weight (str): The ratio of stocks that make up an ETF.
 """
 
-
-def get_high_increase_rate_item(self, amount: int):
-"""
-Fetches the items with the highest increase rates from the previous day.
-
-Args:
-    amount (int): The number of items to fetch.
-
-Returns:
-    List[Dict]: List of the items with the highest increase rates.
-        - hname (str): The korean name of stock.
-        - increase_rate (str): the rate of incline compared to the previous day
-"""
-
-
-def get_high_decrease_rate_item(self, amount: int):
-"""
-Fetches the items with the highest decrease rates from the previous day.
-
-Args:
-    amount (int): The number of items to fetch.
-
-Returns:
-    List[Dict]: List of the items with the highest decrease rates.
-        - hname (str): The korean name of stock.
-        - decrease_rate (str): The rate of decline compared to the previous day.
-"""
-
-
 This is the example how to use get_etf_composition() function.
 ```python
 import matplotlib.pyplot as plt
@@ -285,3 +257,31 @@ def main():
 
 main()
 ```
+
+
+def get_high_increase_rate_item(self, amount: int):
+"""
+Fetches the items with the highest increase rates from the previous day.
+
+Args:
+    amount (int): The number of items to fetch.
+
+Returns:
+    List[Dict]: List of the items with the highest increase rates.
+        - hname (str): The korean name of stock.
+        - increase_rate (str): the rate of incline compared to the previous day
+"""
+
+
+def get_high_decrease_rate_item(self, amount: int):
+"""
+Fetches the items with the highest decrease rates from the previous day.
+
+Args:
+    amount (int): The number of items to fetch.
+
+Returns:
+    List[Dict]: List of the items with the highest decrease rates.
+        - hname (str): The korean name of stock.
+        - decrease_rate (str): The rate of decline compared to the previous day.
+"""
